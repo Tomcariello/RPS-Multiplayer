@@ -4,7 +4,7 @@
 	<title>
 	</title>
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.css">
-	<link rel="stylesheet" type="text/css" href="https://bootswatch.com/yeti/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="http://bootswatch.com/slate/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/styles.css">
 
 </head>
@@ -12,25 +12,39 @@
 
 <div class="container">
 
-	<div class="row">
-		<div id="buttonContainer" class="col-md-10"></div>
-
-		<div id="addButtons" class="col-md-2">
-			<form id="addButtonsToPage">
-				<p><input type="text" id="addAnimal"></p>
-				<button id="submit">Add Animal</button>
-			</form>
-		</div>
-	</div>
-
-
-	<div class="row mainWindow col-md-10">
+	<div class="row mainWindow col-md-12">
 		<div class="jumbotron">
-			Jumbotron
+			<h1>Rock. Paper. Scissors.</h1>
 		</div>
 	</div>
+
+	<div class="row statusBox col-md-12">
+		<h2>Player Instructions go here</h2>
+	</div>
+
+	<div class="row gameArea">
+
+		<div class="playerOne col-md-4">
+			<p>Name</p>
+			<p>Options to choose</p>
+			<p>Wins/losses</p>
+		</div>
+
+		<div class="gameTrack  col-md-4">
+			<h3>Game results go here</h3>
+		</div>
+
+		<div class="playerTwo col-md-4">
+			<p>Name</p>
+			<p>Options to choose</p>
+			<p>Wins/losses</p>
+		</div>
+	</div>	
 	
-	
+	<div class="row chatBox col-md-12">
+		<h2>Chat feature goes here</h2>
+	</div>
+
 </div>	
 	<script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="assets/js/app.js"></script>

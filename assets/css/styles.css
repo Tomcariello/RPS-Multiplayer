@@ -1,0 +1,32 @@
+.jumbotron {
+	text-align: center;
+	margin: 0;
+	margin-top: 15px;
+}
+.statusBox, .chatBox {
+	width: 100%;
+	text-align: center;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #ffffff;
+	border-top: 1px solid #ffffff;
+}
+.playerOne, .playerTwo, .gameTrack {
+	text-align: center;
+	margin-bottom: 10px;
+	height: 350px;
+	border: 1px solid #ffffff;
+	margin: 1.25%;
+	width: 30%;
+	padding: 0;
+}
+.gameTrack {
+	border: 1px solid #ffffff;
+}
+p {
+	font-size: 24px;
+	margin-top: 20px;
+
+
+}
