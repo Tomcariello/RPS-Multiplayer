@@ -47,28 +47,53 @@ $('#submit').on('click', function() {
 		
 function printPlayer(playerPosition, playerName) {
 
+	if (playerPosition == "one") {
+		var divToUpdate = $('#playerOneInfo');
+		var rockClass = "p1Rock";
+		var paperClass = "p1Paper";
+		var scissorsClass = "p1Scissors";
+	} else {
+		var divToUpdate = $('#playerTwoInfo');
+		var rockClass = "p2Rock";
+		var paperClass = "p2Paper";
+		var scissorsClass = "p2Scissors";
+	}
+
+
 	$('#player').val("");
 	var nameString = $('<p>');
 	nameString.text(playerName);
 
+	var rock = $('<div>');
+	rock.addClass(rockClass);
 	var options = $('<p>');
-	options.text("Rock. Paper. Scissors.");
+	options.text("Rock.");
+	rock.append(options);
+
+	var paper = $('<div>');
+	paper.addClass(paperClass);
+	var options = $('<p>');
+	options.text("Paper.");
+	paper.append(options);
+
+	var scissors = $('<div>');
+	scissors.addClass(scissorsClass);
+	var options = $('<p>');
+	options.text("Scissors.");
+	scissors.append(options);
 
 	var recordString = $('<p>');
 	recordString.text("0 wins, 0 losses, 0 ties");
 
-	if (playerPosition == "one") {
-		$('#playerOneInfo').html("");
-		$('#playerOneInfo').append(nameString);
-		$('#playerOneInfo').append(options);
-		$('#playerOneInfo').append(recordString);
-	} else {
-		$('#playerTwoInfo').html("");
-		$('#playerTwoInfo').append(nameString);
-		$('#playerTwoInfo').append(options);
-		$('#playerTwoInfo').append(recordString);
-		gameOn();
-	}
+
+	divToUpdate.html("");
+	divToUpdate.append(nameString);
+	divToUpdate.append(rock);
+
+	divToUpdate.append(paper);
+	divToUpdate.append(scissors);
+	divToUpdate.append(recordString);
+	gameOn();
 }
 		
 function gameOn() {
@@ -78,6 +103,8 @@ function gameOn() {
 
 	$('#gameTrackInfo').html("");
 	$('#gameTrackInfo').html(introductions);
-
-
 }
+
+$(document).on('click','.p1Rock', function() {
+	console.log($(this));
+})
