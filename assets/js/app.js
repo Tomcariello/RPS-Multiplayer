@@ -11,38 +11,75 @@ firebase.initializeApp(config);
 // Initialize variables
 var database = firebase.database();
 
+var firstPageLoad = true;
+
 var playerOneName = "";
 var playerOneWins = 0;
 var playerOneLosses = 0;
 var playerOneTies = 0;
-var playerOneRock = 0;
-var playerOnePaper = 0;
-var playerOneScissors = 0;
 var playerOneChoice = "";
 
 var playerTwoName = "";
 var playerTwoWins = 0;
 var playerTwoLosses = 0;
 var playerTwoTies = 0;
-var playerTwoRock = 0;
-var playerTwoPaper = 0;
-var playerTwoScissors = 0;
 var playerTwoChoice = "";
 
 var playerOnePresent = false;
 var playerTwoPresent = false;
+
+database.ref().set({
+	playerOnePresent: false,
+	playerTwoPresent: false
+});
+
+var youArePlayerOne = false;
+var youArePlayerTwo = false;
 
 //Submit button function
 $('#submit').on('click', function() {
 	
 	if (playerOnePresent == false) {
 		playerOnePresent = true;
+		youArePlayerOne = true;
 		playerOneName = ($('#player').val());
+		database.ref().set({
+			playerOnePresent: true,
+			playerOneName: playerOneName
+		});
+		
 		printPlayer("one", playerOneName);
-	} else {
+	} else if (youArePlayerOne == false) {
 		playerTwoPresent = true;
+		youArePlayerTwo = true;
 		playerTwoName = ($('#player').val());
+		database.ref().set({
+			playerOnePresent: true,
+			playerTwoPresent: true,
+			playerOneName: playerOneName,
+			playerTwoName: playerTwoName
+		});
+		
 		printPlayer("two", playerTwoName);
+	}
+})
+
+database.ref().on("value", function(snapshot) {
+	if (firstPageLoad == true) {
+		firstPageLoad = false;
+		return false;
+	}
+
+	if (snapshot.val().playerOnePresent == true) {
+		playerOneName = snapshot.val().playerOneName;
+		playerOnePresent = true;
+		printPlayer("one", snapshot.val().playerOneName);
+	}
+
+	if (snapshot.val().playerTwoPresent == true) {
+		playerTwoName = snapshot.val().playerTwoName;
+		playerTwoPresent = true;
+		printPlayer("two", snapshot.val().playerTwoName);
 	}
 })
 
@@ -117,35 +154,16 @@ function gameOn() {
 }
 
 $(document).on('click','.playerOneChoiceOptions', function() {
-	if ((playerOneChoice != "Rock" && playerOneChoice != "Paper" && playerOneChoice != "Scissors") && playerTwoPresent== true)  {
-		playerOneChoice = $(this).attr('data-choice');
-		
-		//increment type played
-		if (playerOneChoice == "Rock") {
-			playerOneRock++;
-		} else if (playerOneChoice == "Paper") {
-			playerOnePaper++;
-		} else {
-			playerOneScissors++;
-		}
 
+	if ((playerOneChoice != "Rock" && playerOneChoice != "Paper" && playerOneChoice != "Scissors") && playerTwoPresent== true && youArePlayerOne == true)  {
+		playerOneChoice = $(this).attr('data-choice');
 		checkResults();
 	}
 })
 
 $(document).on('click','.playerTwoChoiceOptions', function() {
-	if ((playerTwoChoice != "Rock" && playerTwoChoice != "Paper" && playerTwoChoice != "Scissors") && playerOnePresent== true) {
+	if ((playerTwoChoice != "Rock" && playerTwoChoice != "Paper" && playerTwoChoice != "Scissors") && playerOnePresent== true && youArePlayerTwo == true) {
 		playerTwoChoice = $(this).attr('data-choice');
-		
-		//increment type played
-		if (playerTwoChoice == "Rock") {
-			playerTwoRock++;
-		} else if (playerTwoChoice == "Paper") {
-			playerTwoPaper++;
-		} else {
-			playerTwoScissors++;
-		}
-
 		checkResults();
 	}
 })
@@ -180,5 +198,4 @@ $(document).on('click', '#trashTalk', function() {
 	var trashtalk = trashTalker.value;
 	trashTalker.value = "";
 	trashBin.value +=  trashtalk;
-	
 })
