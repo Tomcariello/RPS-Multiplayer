@@ -19,8 +19,10 @@
 	</div>
 
 	<div class="row statusBox col-md-12">
-		Enter your name:<input type="text" id="player">
-		<button class="btn btn-primary" type="button" id="submit">Submit</button>
+		<div id="playerEntry">
+			Enter your name:<input type="text" id="player">
+			<button class="btn btn-primary" type="button" id="submit">Submit</button>
+		</div>
 	</div>
 
 	<div class="row gameArea">
@@ -43,7 +45,10 @@
 	</div>	
 	
 	<div class="row chatBox col-md-12">
-		<h2>Chat feature goes here</h2>
+		<h2>Talk Trash:</h2>
+		<textarea rows="8" cols="100" id="trashBin" disabled></textarea><Br>
+		<input type="text" id="trashTalker">
+			<button class="btn btn-primary" type="button" id="trashTalk">Submit</button>
 	</div>
 
 </div>	
