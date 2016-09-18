@@ -11,14 +11,19 @@ Add chat feature
 Create game logic (or copy from previous exercise)
 Allow player 1 to select their move, then alert player 2 to select their move. (I'll allow both players to select whenever they want)
 
-To Do List
+9/18/2016
+Core gameplay is in place.
 Add firebase connectivity
-	Only Player One is allowed to select the player one move and vice versa.
-	Indicate in trashtalker which player talked which trash.
-	On disconnect, clear all variables from firebase DB
-	Once player enters their name the "enter name" box should disappear
-In trashtalker, insert lines breaks. (This is trivial if I replace the textarea element with a standard div).
+Only Player One is allowed to select the player one move and vice versa.
+Once player enters their name the "enter name" box should disappear (this is disabled but not hidden)
 
+
+To Do List
+Games are not quite in sync. Consider a function to update the firebase DB so you don't have updates all over the place.
+If player 1 is already assigned when the player 2 page loads it is not aware of player one.
+Indicate in trashtalker which player talked which trash.
+On disconnect, clear all variables from firebase DB
+In trashtalker, insert lines breaks. (This is trivial if I replace the textarea element with a standard div).
 
 
 Stretch Goals
