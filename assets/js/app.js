@@ -28,16 +28,19 @@ var playerTwoChoice = "";
 var playerOnePresent = false;
 var playerTwoPresent = false;
 
+var gameInProgress = false;
+
 database.ref().set({
 	playerOnePresent: false,
 	playerTwoPresent: false,
+	gameInProgress: false,
 	playerOneTies: 0,
 	playerTwoTies: 0,
 	playerOneWins: 0,
 	playerTwoWins: 0,
 	playerOneLosses: 0,
-	playerTwoLosses: 0
-
+	playerTwoLosses: 0,
+	gameInProgress: false
 });
 
 var youArePlayerOne = false;
@@ -50,15 +53,9 @@ $('#submit').on('click', function() {
 		playerOnePresent = true;
 		youArePlayerOne = true;
 		playerOneName = ($('#player').val());
-		database.ref().set({
+		database.ref().update({
 			playerOnePresent: true,
 			playerOneName: playerOneName,
-			playerOneTies: playerOneTies,
-			playerTwoTies: playerTwoTies,
-			playerOneWins: playerOneWins,
-			playerTwoWins: playerTwoWins,
-			playerOneLosses: playerOneLosses,
-			playerTwoLosses: playerTwoLosses
 		});
 		
 		printPlayer("one", playerOneName);
@@ -66,17 +63,9 @@ $('#submit').on('click', function() {
 		playerTwoPresent = true;
 		youArePlayerTwo = true;
 		playerTwoName = ($('#player').val());
-		database.ref().set({
-			playerOnePresent: true,
+		database.ref().update({
 			playerTwoPresent: true,
-			playerOneName: playerOneName,
 			playerTwoName: playerTwoName,
-			playerOneTies: playerOneTies,
-			playerTwoTies: playerTwoTies,
-			playerOneWins: playerOneWins,
-			playerTwoWins: playerTwoWins,
-			playerOneLosses: playerOneLosses,
-			playerTwoLosses: playerTwoLosses
 		});
 		
 		printPlayer("two", playerTwoName);
@@ -94,29 +83,31 @@ database.ref().on("value", function(snapshot) {
 		playerOnePresent = true;
 		playerTwoChoice = snapshot.val().playerTwoChoice;
 		playerOneChoice = snapshot.val().playerOneChoice;
-		printPlayer("one", snapshot.val().playerOneName);
 		playerOneTies = snapshot.val().playerOneTies;
 		playerTwoTies = snapshot.val().playerTwoTies;
 		playerOneWins = snapshot.val().playerOneWins;
 		playerTwoWins = snapshot.val().playerTwoWins;
 		playerOneLosses = snapshot.val().playerOneLosses;
 		playerTwoLosses = snapshot.val().playerTwoLosses;
-
-
+		gameInProgress = snapshot.val().gameInProgress;
+		printPlayer("one", snapshot.val().playerOneName);
 	}
 
 	if (snapshot.val().playerTwoPresent == true) {
+		console.log("player 2 is present");
 		playerTwoName = snapshot.val().playerTwoName;
 		playerTwoPresent = true;
 		playerOneChoice = snapshot.val().playerOneChoice;
 		playerTwoChoice = snapshot.val().playerTwoChoice;
-		printPlayer("two", snapshot.val().playerTwoName);
 		playerOneTies = snapshot.val().playerOneTies;
 		playerTwoTies = snapshot.val().playerTwoTies;
 		playerOneWins = snapshot.val().playerOneWins;
 		playerTwoWins = snapshot.val().playerTwoWins;
 		playerOneLosses = snapshot.val().playerOneLosses;
 		playerTwoLosses = snapshot.val().playerTwoLosses;
+		gameInProgress = snapshot.val().gameInProgress;
+		printPlayer("two", snapshot.val().playerTwoName);
+		checkResults();
 	}
 })
 
@@ -182,12 +173,20 @@ function printPlayer(playerPosition, playerName) {
 }
 		
 function gameOn() {
-	var introductions = $('<p>');
-	introductions.text(playerOneName + " will take on " + playerTwoName + " in a game with very few consequences.")
-	introductions.append("<br><br>Choose your weapons!!");
+	console.log("gameon running " + gameInProgress);
+	if (gameInProgress == false) {
+		gameInProgress = true;
+		database.ref().update({
+			gameInProgress: true
+		});
+		
+		var introductions = $('<p>');
+		introductions.text(playerOneName + " will take on " + playerTwoName + " in a game with very few consequences.")
+		introductions.append("<br><br>Choose your weapons!!");
 
-	$('#gameTrackInfo').html("");
-	$('#gameTrackInfo').html(introductions);
+		$('#gameTrackInfo').html("");
+		$('#gameTrackInfo').html(introductions);
+	}
 }
 
 $(document).on('click','.playerOneChoiceOptions', function() {
@@ -195,38 +194,10 @@ $(document).on('click','.playerOneChoiceOptions', function() {
 	if ((playerOneChoice != "Rock" && playerOneChoice != "Paper" && playerOneChoice != "Scissors") && playerTwoPresent== true && youArePlayerOne == true)  {
 		
 		playerOneChoice = $(this).attr('data-choice');
-		
-		if (playerTwoChoice == "Rock" || playerTwoChoice == "Paper" || playerTwoChoice == "Scissors") {
-			database.ref().set({
-				playerOnePresent: true,
-				playerTwoPresent: true,
-				playerOneName: playerOneName,
-				playerTwoName: playerTwoName,
-				playerOneChoice: playerOneChoice,
-				playerTwoChoice: playerTwoChoice, //only send this if not null
-				playerOneTies: playerOneTies,
-				playerTwoTies: playerTwoTies,
-				playerOneWins: playerOneWins,
-				playerTwoWins: playerTwoWins,
-				playerOneLosses: playerOneLosses,
-				playerTwoLosses: playerTwoLosses
-			});
-			checkResults();
-		} else {
-			database.ref().set({
-				playerOnePresent: true,
-				playerTwoPresent: true,
-				playerOneName: playerOneName,
-				playerTwoName: playerTwoName,
-				playerOneChoice: playerOneChoice,
-				playerOneTies: playerOneTies,
-				playerTwoTies: playerTwoTies,
-				playerOneWins: playerOneWins,
-				playerTwoWins: playerTwoWins,
-				playerOneLosses: playerOneLosses,
-				playerTwoLosses: playerTwoLosses
-			});
-		}
+		database.ref().update({
+			playerOneChoice: playerOneChoice,
+		});
+		checkResults();
 	}
 })
 
@@ -234,83 +205,103 @@ $(document).on('click','.playerTwoChoiceOptions', function() {
 	if ((playerTwoChoice != "Rock" && playerTwoChoice != "Paper" && playerTwoChoice != "Scissors") && playerOnePresent== true && youArePlayerTwo == true) {
 		
 		playerTwoChoice = $(this).attr('data-choice');
-		
-		if (playerOneChoice == "Rock" || playerOneChoice == "Paper" || playerOneChoice == "Scissors") {
-			playerOneChoice == 
-			database.ref().set({
-				playerOnePresent: true,
-				playerTwoPresent: true,
-				playerOneName: playerOneName,
-				playerTwoName: playerTwoName,
-				playerOneChoice: playerOneChoice, //only send this if not null
-				playerTwoChoice: playerTwoChoice,
-				playerOneTies: playerOneTies,
-				playerTwoTies: playerTwoTies,
-				playerOneWins: playerOneWins,
-				playerTwoWins: playerTwoWins,
-				playerOneLosses: playerOneLosses,
-				playerTwoLosses: playerTwoLosses
-			});
-			checkResults();
-		} else {
-			database.ref().set({
-				playerOnePresent: true,
-				playerTwoPresent: true,
-				playerOneName: playerOneName,
-				playerTwoName: playerTwoName,
-				playerTwoChoice: playerTwoChoice,
-				playerOneTies: playerOneTies,
-				playerTwoTies: playerTwoTies,
-				playerOneWins: playerOneWins,
-				playerTwoWins: playerTwoWins,
-				playerOneLosses: playerOneLosses,
-				playerTwoLosses: playerTwoLosses
-			});
+		database.ref().update({
+			playerTwoChoice: playerTwoChoice,
+		})
+		checkResults();
 		}
-	}
 })
 
 function checkResults() {
 	console.log("Checking Results" + playerOneChoice + " " + playerTwoChoice);
+
 	if (playerOneChoice == "" || playerTwoChoice == "") {
 		console.log("someone hasn't selected their weapon yet.");
 		return false;
 	} else if (playerOneChoice ==  playerTwoChoice) {
-		// playerOneTies = database.ref().val().playerOneTies;
-		// playerTwoTies = database.ref().val().playerTwoTies;
 		playerOneTies++;
 		playerTwoTies++;
-		alert("It's a tie!");
+		tieGame();
 	} else if (playerOneChoice == "Rock" && playerTwoChoice != "Paper") {
 		playerOneWins++;
-		alert(playerOneName + " wins!");
+		playerTwoLosses++;
+		playerOneWinMessage();
 	} else if (playerOneChoice == "Paper" && playerTwoChoice != "Scissors") {
 		playerOneWins++;
-		alert(playerOneName + " wins!");
+		playerTwoLosses++;
+		playerOneWinMessage();
 	} else if (playerOneChoice == "Scissors" && playerTwoChoice != "Rock") {
 		playerOneWins++;
-		alert(playerOneName + " wins!");
+		playerTwoLosses++;
+		playerOneWinMessage();
 	} else {
 		playerTwoWins++;
-		alert(playerTwoName + " wins!");
+		playerOneLosses++;
+		playerTwoWinMessage();
 	}
 	resetGame();
+}
+
+function playerOneWinMessage() {
+	var pOne = $('<p>');
+	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
+	
+	var pTwo = $('<p>');
+	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
+	
+	var victory = $('<p>');
+	victory.text(playerOneName + " wins!");
+
+	$('#gameTrackInfo').html("");
+	$('#gameTrackInfo').html(pOne);
+	$('#gameTrackInfo').append(pTwo);
+	$('#gameTrackInfo').append(victory);
+}
+
+function playerTwoWinMessage() {
+	var pOne = $('<p>');
+	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
+	
+	var pTwo = $('<p>');
+	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
+	
+	var victory = $('<p>');
+	victory.text(playerTwoName + " wins!");
+
+	$('#gameTrackInfo').html("");
+	$('#gameTrackInfo').html(pOne);
+	$('#gameTrackInfo').append(pTwo);
+	$('#gameTrackInfo').append(victory);
+}
+
+function tieGame() {
+	var pOne = $('<p>');
+	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
+	
+	var pTwo = $('<p>');
+	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
+	
+	var victory = $('<p>');
+	victory.text("It's a tie!");
+
+	$('#gameTrackInfo').html("");
+	$('#gameTrackInfo').html(pOne);
+	$('#gameTrackInfo').append(pTwo);
+	$('#gameTrackInfo').append(victory);
 }
 
 function resetGame() {
 	playerOneChoice = "";
 	playerTwoChoice = "";
-	database.ref().set({
-		playerOnePresent: true,
-		playerTwoPresent: true,
-		playerOneName: playerOneName,
-		playerTwoName: playerTwoName,
+	database.ref().update({
 		playerOneTies: playerOneTies,
 		playerTwoTies: playerTwoTies,
 		playerOneWins: playerOneWins,
 		playerTwoWins: playerTwoWins,
 		playerOneLosses: playerOneLosses,
-		playerTwoLosses: playerTwoLosses
+		playerTwoLosses: playerTwoLosses,
+		playerOneChoice: playerOneChoice,
+		playerTwoChoice: playerTwoChoice
 	});
 	printPlayer("one", playerOneName);
 	printPlayer("two", playerTwoName);

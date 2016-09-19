@@ -17,13 +17,20 @@ Add firebase connectivity
 Only Player One is allowed to select the player one move and vice versa.
 Once player enters their name the "enter name" box should disappear (this is disabled but not hidden)
 
+9/19/2016
+Games are now in sync.
+Fixed "gameTracker" box to display messages universally
+Added functions for player wins.
+Updated firebase calls throughout program to ref().update instead of ref().set.
+
 
 To Do List
-Games are not quite in sync. Consider a function to update the firebase DB so you don't have updates all over the place.
 If player 1 is already assigned when the player 2 page loads it is not aware of player one.
-Indicate in trashtalker which player talked which trash.
 On disconnect, clear all variables from firebase DB
+
+Indicate in trashtalker which player talked which trash.
 In trashtalker, insert lines breaks. (This is trivial if I replace the textarea element with a standard div).
+
 
 
 Stretch Goals
