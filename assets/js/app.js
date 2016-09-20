@@ -30,7 +30,8 @@ var playerTwoPresent = false;
 
 var gameInProgress = false;
 
-
+// create a 'players' collection on your firebase
+var playersRef = database.ref("players");
 
 //This is definitely wrong. One page load this is set all variables to null. Once the onDisconnect is setup to release the values when a user leaves this should be removed/adjusted.
 database.ref().set({
@@ -49,9 +50,26 @@ database.ref().set({
 var youArePlayerOne = false;
 var youArePlayerTwo = false;
 
+// Make a constructor for a player object
+function createPlayerInstance(playerNumber, playerName){
+  //creates an ID based on the passed in integer
+  playerRef = database.ref("/players/" + playerNumber);
+
+  //creates player reference in db
+  playerRef.push({
+    name: playerName,
+    wins: 0,
+    losses: 0
+  });
+
+  //on 'disconnect' remove the player
+  playerRef.onDisconnect().remove();
+
+}
+
 //Submit button function
 $('#submit').on('click', function() {
-	
+
 	if (playerOnePresent == false) {
 		playerOnePresent = true;
 		youArePlayerOne = true;
@@ -60,7 +78,8 @@ $('#submit').on('click', function() {
 			playerOnePresent: true,
 			playerOneName: playerOneName,
 		});
-		
+    // Create player 1
+    createPlayerInstance(1, playerOneName);
 		printPlayer("one", playerOneName);
 	} else if (youArePlayerOne == false) {
 		playerTwoPresent = true;
@@ -70,7 +89,8 @@ $('#submit').on('click', function() {
 			playerTwoPresent: true,
 			playerTwoName: playerTwoName,
 		});
-		
+    // Create player 2
+    createPlayerInstance(2, playerOneName);
 		printPlayer("two", playerTwoName);
 	}
 })
@@ -113,6 +133,15 @@ database.ref().on("value", function(snapshot) {
 		checkResults();
 	}
 })
+
+//listen for changes on the 'players' collection
+playersRef.on('value', function(snapshot) {
+  //set player presence through listener
+  playerOnePresent = snapshot.child('1').exists();
+  if(playerOnePresent) console.log('Player One Ready');
+  playerTwoPresent = snapshot.child('2').exists();
+  if(playerTwoPresent) console.log('Player Two Ready');
+});
 
 //Print Player info
 function printPlayer(playerPosition, playerName) {
@@ -172,16 +201,16 @@ function printPlayer(playerPosition, playerName) {
 	divToUpdate.append(paper);
 	divToUpdate.append(scissors);
 	divToUpdate.append(recordString);
-	
+
 }
-		
+
 function gameOn() {
 	if (gameInProgress == false) {
 		gameInProgress = true;
 		database.ref().update({
 			gameInProgress: true
 		});
-		
+
 		var introductions = $('<p>');
 		introductions.text(playerOneName + " will take on " + playerTwoName + " in a game with very few consequences.")
 		introductions.append("<br><br>Choose your weapons!!");
@@ -194,7 +223,7 @@ function gameOn() {
 $(document).on('click','.playerOneChoiceOptions', function() {
 
 	if ((playerOneChoice != "Rock" && playerOneChoice != "Paper" && playerOneChoice != "Scissors") && playerTwoPresent== true && youArePlayerOne == true)  {
-		
+
 		playerOneChoice = $(this).attr('data-choice');
 		database.ref().update({
 			playerOneChoice: playerOneChoice,
@@ -205,7 +234,7 @@ $(document).on('click','.playerOneChoiceOptions', function() {
 
 $(document).on('click','.playerTwoChoiceOptions', function() {
 	if ((playerTwoChoice != "Rock" && playerTwoChoice != "Paper" && playerTwoChoice != "Scissors") && playerOnePresent== true && youArePlayerTwo == true) {
-		
+
 		playerTwoChoice = $(this).attr('data-choice');
 		database.ref().update({
 			playerTwoChoice: playerTwoChoice,
@@ -247,10 +276,10 @@ function checkResults() {
 function playerOneWinMessage() {
 	var pOne = $('<p>');
 	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
-	
+
 	var pTwo = $('<p>');
 	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
-	
+
 	var victory = $('<p>');
 	victory.text(playerOneName + " wins!");
 
@@ -263,10 +292,10 @@ function playerOneWinMessage() {
 function playerTwoWinMessage() {
 	var pOne = $('<p>');
 	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
-	
+
 	var pTwo = $('<p>');
 	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
-	
+
 	var victory = $('<p>');
 	victory.text(playerTwoName + " wins!");
 
@@ -279,10 +308,10 @@ function playerTwoWinMessage() {
 function tieGame() {
 	var pOne = $('<p>');
 	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
-	
+
 	var pTwo = $('<p>');
 	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
-	
+
 	var victory = $('<p>');
 	victory.text("It's a tie!");
 
@@ -345,4 +374,4 @@ presenceRef.on("value", function(snap) {
 // Number of online users is the number of objects in the presence list.
 listRef.on("value", function(snap) {
   console.log("# of online users = " + snap.numChildren());
-});    
+});
