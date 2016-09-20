@@ -23,6 +23,11 @@ Fixed "gameTracker" box to display messages universally
 Added functions for player wins.
 Updated firebase calls throughout program to ref().update instead of ref().set.
 
+9/20/2016
+Added firebase presence but it is not working as intended
+
+
+
 
 To Do List
 If player 1 is already assigned when the player 2 page loads it is not aware of player one.

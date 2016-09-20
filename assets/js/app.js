@@ -1,10 +1,10 @@
 // Initialize Firebase
 var config = {
-apiKey: "AIzaSyB6x4Aln-GHP8uRwtXc5HxKVaPlw3EU3u8",
-authDomain: "rpsgame-78bfc.firebaseapp.com",
-databaseURL: "https://rpsgame-78bfc.firebaseio.com",
-storageBucket: "",
-messagingSenderId: "252670266775"
+	apiKey: "AIzaSyB6x4Aln-GHP8uRwtXc5HxKVaPlw3EU3u8",
+	authDomain: "rpsgame-78bfc.firebaseapp.com",
+	databaseURL: "https://rpsgame-78bfc.firebaseio.com",
+	storageBucket: "",
+	messagingSenderId: "252670266775"
 };
 firebase.initializeApp(config);
 
@@ -30,6 +30,9 @@ var playerTwoPresent = false;
 
 var gameInProgress = false;
 
+
+
+//This is definitely wrong. One page load this is set all variables to null. Once the onDisconnect is setup to release the values when a user leaves this should be removed/adjusted.
 database.ref().set({
 	playerOnePresent: false,
 	playerTwoPresent: false,
@@ -173,7 +176,6 @@ function printPlayer(playerPosition, playerName) {
 }
 		
 function gameOn() {
-	console.log("gameon running " + gameInProgress);
 	if (gameInProgress == false) {
 		gameInProgress = true;
 		database.ref().update({
@@ -312,3 +314,25 @@ $(document).on('click', '#trashTalk', function() {
 	trashTalker.value = "";
 	trashBin.value +=  trashtalk;
 })
+
+
+
+//Create presence system to track the number of users. This only sees 1 user at a time. If I open a second session it drops the count to 0 and then increments back to 1. I have no idea what the code below is doing & pulled he code from SO & can't figure it out.
+
+var listRef = new Firebase("https://rpsgame-78bfc.firebaseio.com/presence/");
+userRef = listRef.push();
+// Add ourselves to presence list when online.
+var presenceRef = new Firebase("https://rpsgame-78bfc.firebaseio.com/.info/connected");
+
+presenceRef.on("value", function(snap) {
+  if (snap.val()) {
+    // Remove ourselves when we disconnect.
+    userRef.onDisconnect().remove();
+    userRef.set(true);
+  }
+});
+
+// Number of online users is the number of objects in the presence list.
+listRef.on("value", function(snap) {
+  console.log("# of online users = " + snap.numChildren());
+});    
