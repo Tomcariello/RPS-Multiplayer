@@ -310,9 +310,19 @@ function resetGame() {
 }
 
 $(document).on('click', '#trashTalk', function() {
-	var trashtalk = trashTalker.value;
+	var trashtalk = "";
+	if (youArePlayerOne) {
+		trashtalk = "<span class='playerOneText'>" + playerOneName + ": " + trashTalker.value + "<br>";
+	} else if (youArePlayerTwo) {
+		trashtalk = "<span class='playerTwoText'>" + playerTwoName + ": " + trashTalker.value + "<br>";
+	} else {
+		trashtalk = "<span class='guest'>Guest: " + trashTalker.value + "<br>";
+	}
+	
+	
+
 	trashTalker.value = "";
-	trashBin.value +=  trashtalk;
+	$('#trashBin').append(trashtalk);
 })
 
 

@@ -25,6 +25,9 @@ Updated firebase calls throughout program to ref().update instead of ref().set.
 
 9/20/2016
 Added firebase presence but it is not working as intended
+Fixed up chat window
+	Indicate in trashtalker which player talked which trash.
+	In trashtalker, insert lines breaks. (This is trivial if I replace the textarea element with a standard div).
 
 
 
@@ -33,8 +36,6 @@ To Do List
 If player 1 is already assigned when the player 2 page loads it is not aware of player one.
 On disconnect, clear all variables from firebase DB
 
-Indicate in trashtalker which player talked which trash.
-In trashtalker, insert lines breaks. (This is trivial if I replace the textarea element with a standard div).
 
 
 
