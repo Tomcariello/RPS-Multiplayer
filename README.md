@@ -36,6 +36,7 @@ To Do List
 If player 1 is already assigned when the player 2 page loads it is not aware of player one.
 On disconnect, clear all variables from firebase DB
 
+synch chat window
 
 
 
