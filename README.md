@@ -30,13 +30,18 @@ Fixed up chat window
 	In trashtalker, insert lines breaks. (This is trivial if I replace the textarea element with a standard div).
 
 
+9/21/2016
+If player 1 is already assigned when the player 2 page loads it is not aware of player one. 
+On disconnect, clear all variables from firebase DB
+(Thanks Dan)
+
+9/23/2016
+Got the game fully working
 
 
 To Do List
-If player 1 is already assigned when the player 2 page loads it is not aware of player one.
-On disconnect, clear all variables from firebase DB
-
-synch chat window
+fix/sync chat window across sessions
+Figure out why there is a checking loop going on pepetually
 
 
 

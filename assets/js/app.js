@@ -17,19 +17,20 @@ var playerOneName = "";
 var playerOneWins = 0;
 var playerOneLosses = 0;
 var playerOneTies = 0;
-var playerOneChoice = "";
+var playerOneChoice = "not selected";
 
 var playerTwoName = "";
 var playerTwoWins = 0;
 var playerTwoLosses = 0;
 var playerTwoTies = 0;
-var playerTwoChoice = "";
+var playerTwoChoice = "not selected";
 
 var playerOnePresent = false;
 var playerTwoPresent = false;
 var gameInProgress = false;
 var youArePlayerOne = false;
 var youArePlayerTwo = false;
+var snapShotData;
 
 //Lines below set up by Dan & modified by me. Mostly Dan, though.
 // create a 'players' collection on your firebase
@@ -60,39 +61,40 @@ $('#submit').on('click', function() {
 		playerOnePresent = true;
 		youArePlayerOne = true;
 		playerOneName = ($('#player').val());
-		// database.ref().update({
-		// 	playerOnePresent: true
-		// });
-    
+
 	    // Create player 1
 	    createPlayerInstance(1, playerOneName);
-		
 		printPlayer("one", playerOneName);
 
 	} else if (youArePlayerOne == false) {
 		playerTwoPresent = true;
 		youArePlayerTwo = true;
 		playerTwoName = ($('#player').val());
-		// database.ref().update({
-		// 	playerTwoPresent: true
-		// });
     
 	    // Create player 2
 	    createPlayerInstance(2, playerTwoName);
-		
 		printPlayer("two", playerTwoName);
 	}
 })
 
 database.ref().on("value", function(snapshot) {
-	var data = snapshot.val();
+	snapShotData = snapshot.val();
 	
 	if (snapshot.hasChild("players") == false) {
 		return false;
 	}
 
+	//This is triggering too quickly for the DB to update...?
+	    setTimeout(function () {
+	    	console.log("check results after snapshot update")
+	        checkResults();
+	    }, 2000);
+	
+
+
 	//if no players are currently in a game, initialize variables.
 	if (playerOnePresent == true && playerTwoPresent == true) {
+
 		playerOneName   = snapshot.val().players[1].name;
 		playerOneWins   = snapshot.val().players[1].wins;
 		playerOneLosses = snapshot.val().players[1].losses;
@@ -106,7 +108,6 @@ database.ref().on("value", function(snapshot) {
 		gameInProgress  = snapshot.val().gameInProgress;
 		printPlayer("one", playerOneName);
 		printPlayer("two", playerTwoName);
-		checkResults();
 	} else if (playerOnePresent == true) {
 		playerOneName   = snapshot.val().players[1].name;
 		playerOneWins   = snapshot.val().players[1].wins;
@@ -126,18 +127,11 @@ database.ref().on("value", function(snapshot) {
 	}
 })
 
-
-//Set up by Dan.
-//listen for changes on the 'players' collection
+//Set up by Dan. Listen for changes on the 'players' collection
 playersRef.on('value', function(snapshot) {
   //set player presence through listener
   playerOnePresent = snapshot.child('1').exists();
-  
-  // if(playerOnePresent) console.log('Player One Ready');
-  
   playerTwoPresent = snapshot.child('2').exists();
-  
-  // if(playerTwoPresent) console.log('Player Two Ready');
 });
 
 //Print Player info
@@ -204,9 +198,6 @@ function printPlayer(playerPosition, playerName) {
 function gameOn() {
 	if (gameInProgress == false) {
 		gameInProgress = true;
-		// database.ref().update({
-		// 	gameInProgress: true
-		// });
 
 		var introductions = $('<p>');
 		introductions.text(playerOneName + " will take on " + playerTwoName + " in a game with very few consequences.")
@@ -219,116 +210,129 @@ function gameOn() {
 
 $(document).on('click','.playerOneChoiceOptions', function() {
 
-	if (playerTwoPresent == true && playerTwoPresent ==true) {
 		if ((playerOneChoice != "Rock" && playerOneChoice != "Paper" && playerOneChoice != "Scissors") && playerTwoPresent== true && youArePlayerOne == true)  {
 
 			playerOneChoice = $(this).attr('data-choice');
 		  	playerRef.update({
 		    	choice: playerOneChoice
 	  		});
+	  		playerTwoChoice = snapShotData.players[2].choice;
 			checkResults();
 		}
-	}
 })
 
 $(document).on('click','.playerTwoChoiceOptions', function() {
-	if (playerTwoPresent == true && playerTwoPresent ==true) {
-		if ((playerTwoChoice != "Rock" && playerTwoChoice != "Paper" && playerTwoChoice != "Scissors") && playerOnePresent== true && youArePlayerTwo == true) {
-
-			playerTwoChoice = $(this).attr('data-choice');
-			playerRef.update({
-		    	choice: playerTwoChoice
-	  		});
-			checkResults();
-			}
-		}
+	if ((playerTwoChoice != "Rock" && playerTwoChoice != "Paper" && playerTwoChoice != "Scissors") && playerOnePresent== true && youArePlayerTwo == true) {
+		playerTwoChoice = $(this).attr('data-choice');
+		playerRef.update({
+	    	choice: playerTwoChoice
+  		});
+  		playerOneChoice = snapShotData.players[1].choice;
+		checkResults();
+	}
 })
 
 function checkResults() {
-	console.log("Checking Results" + playerOneChoice + " " + playerTwoChoice);
 
-	if (playerOneChoice == undefined || playerTwoChoice == undefined) {
+	//This is triggering too quickly for the DB to update...?
+	setTimeout(function () {
+	   	console.log("check results after snapshot update")
+	    checkResults();
+	    
+	if (playerOneChoice == "not selected" || playerTwoChoice == "not selected" || playerOneChoice == undefined || playerTwoChoice == undefined) {
 		console.log("someone hasn't selected their weapon yet.");
 		return false;
 	} else if (playerOneChoice == playerTwoChoice) {
 		playerOneTies++;
 		playerTwoTies++;
-		tieGame();
+		gameOverMessage("tie");
 	} else if (playerOneChoice == "Rock" && playerTwoChoice != "Paper") {
 		playerOneWins++;
 		playerTwoLosses++;
-		playerOneWinMessage();
+		gameOverMessage("one");
 	} else if (playerOneChoice == "Paper" && playerTwoChoice != "Scissors") {
 		playerOneWins++;
 		playerTwoLosses++;
-		playerOneWinMessage();
+		gameOverMessage("one");
 	} else if (playerOneChoice == "Scissors" && playerTwoChoice != "Rock") {
 		playerOneWins++;
 		playerTwoLosses++;
-		playerOneWinMessage();
+		gameOverMessage("one");
 	} else {
 		playerTwoWins++;
 		playerOneLosses++;
-		playerTwoWinMessage();
+		gameOverMessage("two");
 	}
+
+	}, 2000);
 }
 
-function playerOneWinMessage() {
+function gameOverMessage(winner) {
 	var pOne = $('<p>');
-	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
-
 	var pTwo = $('<p>');
-	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
-
 	var victory = $('<p>');
-	victory.text(playerOneName + " wins!");
+
+	if (winner == "tie") {
+		pOne.text(playerOneName + " throws " + playerOneChoice + ".");
+		pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
+		victory.text("It's a tie!");
+	} else if (winner == "one") {
+		pOne.text(playerOneName + " throws " + playerOneChoice + ".");
+		pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
+		victory.text(playerOneName + " wins!");
+	} else if (winner =="two") {
+		pOne.text(playerOneName + " throws " + playerOneChoice + ".");
+		pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
+		victory.text(playerTwoName + " wins!");
+	}
 
 	$('#gameTrackInfo').html("");
 	$('#gameTrackInfo').html(pOne);
 	$('#gameTrackInfo').append(pTwo);
 	$('#gameTrackInfo').append(victory);
-	resetGame();
-}
 
-function playerTwoWinMessage() {
-	var pOne = $('<p>');
-	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
-
-	var pTwo = $('<p>');
-	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
-
-	var victory = $('<p>');
-	victory.text(playerTwoName + " wins!");
-
-	$('#gameTrackInfo').html("");
-	$('#gameTrackInfo').html(pOne);
-	$('#gameTrackInfo').append(pTwo);
-	$('#gameTrackInfo').append(victory);
-	resetGame();
-}
-
-function tieGame() {
-	var pOne = $('<p>');
-	pOne.text(playerOneName + " throws " + playerOneChoice + ".");
-
-	var pTwo = $('<p>');
-	pTwo.text(playerTwoName + " throws " + playerTwoChoice + ".");
-
-	var victory = $('<p>');
-	victory.text("It's a tie!");
-
-	$('#gameTrackInfo').html("");
-	$('#gameTrackInfo').html(pOne);
-	$('#gameTrackInfo').append(pTwo);
-	$('#gameTrackInfo').append(victory);
 	resetGame();
 }
 
 function resetGame() {
-	playerOneChoice = undefined;
-	playerTwoChoice = undefined;
+
+	console.log("resetGame called");
+
+	var wins;
+	var losses;
+	var ties;
+
+	if (youArePlayerOne==true) {
+		wins = playerOneWins;
+		losses = playerOneLosses;
+		ties = playerOneTies;
+	} else if (youArePlayerTwo==true) {
+		wins = playerTwoWins;
+		losses = playerTwoLosses;
+		ties = playerTwoTies;
+	}
+	
+    playerRef.update({
+	    wins: wins,
+	    losses: losses,
+	    ties: ties,
+	});
+
+	//print updated records
 	printPlayer("one", playerOneName);
 	printPlayer("two", playerTwoName);
+
+	// console.log("resetting choice variables");
+	playerOneChoice = "not selected";
+	playerTwoChoice = "not selected";
+
+	database.ref("/players/1").update({
+	   	choice: "not selected"
+	});
+	database.ref("/players/2").update({
+	   	choice: "not selected"
+	});
+
 }
 
 $(document).on('click', '#trashTalk', function() {
