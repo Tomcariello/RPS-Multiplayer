@@ -84,7 +84,7 @@ database.ref().on("value", function(snapshot) {
 		return false;
 	}
 
-	//This is triggering too quickly for the DB to update...?
+	//This was triggering too quickly for the DB to update...?
 	    setTimeout(function () {
 	    	console.log("check results after snapshot update")
 	        checkResults();
@@ -217,7 +217,7 @@ $(document).on('click','.playerOneChoiceOptions', function() {
 		    	choice: playerOneChoice
 	  		});
 	  		playerTwoChoice = snapShotData.players[2].choice;
-			checkResults();
+			// checkResults();
 		}
 })
 
@@ -228,16 +228,16 @@ $(document).on('click','.playerTwoChoiceOptions', function() {
 	    	choice: playerTwoChoice
   		});
   		playerOneChoice = snapShotData.players[1].choice;
-		checkResults();
+		// checkResults();
 	}
 })
 
 function checkResults() {
 
 	//This is triggering too quickly for the DB to update...?
-	setTimeout(function () {
-	   	console.log("check results after snapshot update")
-	    checkResults();
+	// setTimeout(function () {
+	//    	console.log("check results after snapshot update")
+	//     checkResults();
 	    
 	if (playerOneChoice == "not selected" || playerTwoChoice == "not selected" || playerOneChoice == undefined || playerTwoChoice == undefined) {
 		console.log("someone hasn't selected their weapon yet.");
@@ -264,7 +264,7 @@ function checkResults() {
 		gameOverMessage("two");
 	}
 
-	}, 2000);
+	// }, 2000);
 }
 
 function gameOverMessage(winner) {
