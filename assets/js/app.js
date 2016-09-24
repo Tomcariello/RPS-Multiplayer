@@ -18,12 +18,17 @@ var playerOneWins = 0;
 var playerOneLosses = 0;
 var playerOneTies = 0;
 var playerOneChoice = "not selected";
+var	playerOneTrash;
+var playerOneNewTrash  = "no";
 
 var playerTwoName = "";
 var playerTwoWins = 0;
 var playerTwoLosses = 0;
 var playerTwoTies = 0;
 var playerTwoChoice = "not selected";
+var	playerTwoTrash;
+var	playerTwoNewTrash = "no";
+
 
 var playerOnePresent = false;
 var playerTwoPresent = false;
@@ -90,8 +95,6 @@ database.ref().on("value", function(snapshot) {
 	        checkResults();
 	    }, 2000);
 	
-
-
 	//if no players are currently in a game, initialize variables.
 	if (playerOnePresent == true && playerTwoPresent == true) {
 
@@ -106,6 +109,10 @@ database.ref().on("value", function(snapshot) {
 		playerTwoTies   = snapshot.val().players[2].ties;
 		playerTwoChoice = snapshot.val().players[2].choice;
 		gameInProgress  = snapshot.val().gameInProgress;
+		playerOneTrash  = snapshot.val().players[1].trash;
+		playerOneNewTrash  = snapshot.val().players[1].newTrash;
+		playerTwoTrash  = snapshot.val().players[2].trash;
+		playerTwoNewTrash  = snapshot.val().players[2].newTrash;
 		printPlayer("one", playerOneName);
 		printPlayer("two", playerTwoName);
 	} else if (playerOnePresent == true) {
@@ -114,6 +121,9 @@ database.ref().on("value", function(snapshot) {
 		playerOneLosses = snapshot.val().players[1].losses;
 		playerOneTies   = snapshot.val().players[1].ties;
 		playerOneChoice = snapshot.val().players[1].choice;
+		playerOneTrash  = snapshot.val().players[1].trash;
+		playerOneNewTrash  = snapshot.val().players[1].newTrash;
+		
 		printPlayer("one", playerOneName);
 	} else if (playerTwoPresent == true) {
 		playerTwoName   = snapshot.val().players[2].name;
@@ -121,10 +131,14 @@ database.ref().on("value", function(snapshot) {
 		playerTwoLosses = snapshot.val().players[2].losses;
 		playerTwoTies   = snapshot.val().players[2].ties;
 		playerTwoChoice = snapshot.val().players[2].choice;
+		playerTwoTrash  = snapshot.val().players[2].trash;
+		playerTwoNewTrash  = snapshot.val().players[2].newTrash;
 		printPlayer("two", playerTwoName);
 	} else {
 		console.log("no one's here");
 	}
+
+	updateTrashTalker();
 })
 
 //Set up by Dan. Listen for changes on the 'players' collection
@@ -264,7 +278,7 @@ function checkResults() {
 		gameOverMessage("two");
 	}
 
-	// }, 2000);
+	updateTrashTalker();
 }
 
 function gameOverMessage(winner) {
@@ -336,19 +350,33 @@ function resetGame() {
 }
 
 $(document).on('click', '#trashTalk', function() {
-	updateTrashTalker();
+
+	if (playerOnePresent==true && playerTwoPresent==true) {
+
+		playerRef.update({
+			newTrash: "yes",
+		    trash: trashTalker.value + "<br>"
+		});
+	}	
 })
 
 function updateTrashTalker() {
-	var trashtalk = "";
+	
+	var trashtalk;
 
-	if (youArePlayerOne) {
-		trashtalk = "<span class='playerOneText'>" + playerOneName + ": " + trashTalker.value + "<br>";
-	} else if (youArePlayerTwo) {
-		trashtalk = "<span class='playerTwoText'>" + playerTwoName + ": " + trashTalker.value + "<br>";
-	} else {
-		trashtalk = "<span class='guest'>Guest: " + trashTalker.value + "<br>";
-	}
+	if (playerOneNewTrash == "yes") {
+		trashtalk = "<span class='playerOneText'>" + playerOneName + "</span>: " + playerOneTrash + "<br>";
+		database.ref("/players/1").update({
+			newTrash: "no",
+	    	trash: ""
+		});
+	} else if (playerTwoNewTrash == "yes") {
+		trashtalk = "<span class='playerTwoText'>" + playerTwoName + "</span>: " + playerTwoTrash + "<br>";
+		database.ref("/players/2").update({
+			newTrash: "no",
+	    	trash: ""
+		});
+	} 
 	
 	trashTalker.value = "";
 	$('#trashBin').append(trashtalk);

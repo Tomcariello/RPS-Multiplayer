@@ -29,24 +29,27 @@ Fixed up chat window
 	Indicate in trashtalker which player talked which trash.
 	In trashtalker, insert lines breaks. (This is trivial if I replace the textarea element with a standard div).
 
-
 9/21/2016
 If player 1 is already assigned when the player 2 page loads it is not aware of player one. 
 On disconnect, clear all variables from firebase DB
 (Thanks Dan)
 
-9/23/2016
+9/23/2016 (AM)
 Got the game fully working
+
+9/23/2016 (PM)
+Fix/sync chat window across sessions
+
+
 
 
 To Do List
-fix/sync chat window across sessions
-Figure out why there is a checking loop going on pepetually
+Figure out why there is a checking loop going on pepetually -- this was greatly improved on 9/23/2016 AM but still a problem
 
 
 
 Stretch Goals
-Add graphics for Rock/Paper/Scissors
+Add graphics for Rock/Paper/Scissors (or at least some kind of selection indicator)
 Add funny/interesting game commentary
 Add background image to liven things up
 Add random comments to the chat feature
